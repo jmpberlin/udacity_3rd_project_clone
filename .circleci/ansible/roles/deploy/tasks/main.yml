@@ -28,13 +28,13 @@
 #   shell: |
 #     sudo npm install pm2 -g
 #     cd ~/
-- name: 'unpack the artifact'
-  shell: |
-    cd backend/
-    sudo tar -xvzf artifact.tar.gz
-- name: start the app
-  shell: |
-    cd backend/
-    npm install
-    pm2 stop default
-    pm2 start npm -- start
+# - name: 'unpack the artifact'
+#   shell: |
+#     cd backend/
+#     sudo tar -xvzf artifact.tar.gz
+# - name: start the app
+#   shell: |
+#     cd backend/
+#     npm install
+#     pm2 stop default
+#     pm2 start npm -- start
