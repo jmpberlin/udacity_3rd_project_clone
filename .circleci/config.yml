@@ -205,6 +205,7 @@ jobs:
           name: read through the dump
           command: |
             cat ~/project/backend/migrations_dump.txt
+            echo $TYPEORM_PORT
       # - run:
       #     name: Send migration status to kvdb.io OR memstash.io
       #     command: |
