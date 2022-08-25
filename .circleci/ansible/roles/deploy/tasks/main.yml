@@ -2,7 +2,7 @@
 - name: download the zipped artifact
   shell: |
     cd backend
-    curl -H "Circle-Token: $CIRCLE_TOKEN" https://circleci.com/api/v1.1/project/github/jmpberlin/cdond-c3-projectstarter/$CIRCLE_BUILD_NUM/artifacts | grep -o 'https://[^"]*' | wget --verbose --header "Circle-Token: $CIRCLE_TOKEN" --input-file -
+    curl -H "Circle-Token: $CIRCLE_TOKEN" https://circleci.com/api/v1.1/project/github/jmpberlin/udacity_3rd_project_clone/$CIRCLE_BUILD_NUM/artifacts | grep -o 'https://[^"]*' | wget --verbose --header "Circle-Token: $CIRCLE_TOKEN" --input-file -
 
 # - name: 'update apt packages.'
 #   become: yes
