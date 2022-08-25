@@ -198,10 +198,14 @@ jobs:
       - run:
           name: Run migrations
           command: |
-            cd ~/project/backend
+            cd backend
             npm install
-            npm run migrations:revert
-
+            npm run migrations > migrations_dump.txt
+      - run:
+          name: read through the dump
+          command: |
+            cat ~/project/backend/migrations_dump.txt
+            echo $TYPEORM_PORT
       # - run:
       #     name: Send migration status to kvdb.io OR memstash.io
       #     command: |
