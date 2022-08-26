@@ -206,7 +206,7 @@ jobs:
           command: |
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
-                curl https://kvdb.io/MfuFTtcrnEYNxTz4nHT51E/migration_WhatTheHeck -d '1'
+                curl https://kvdb.io/MfuFTtcrnEYNxTz4nHT51E/migration_${CIRCLE_WORKFLOW_ID:0:7} -d '1'
             fi
   #   deploy-frontend:
   #     docker:
