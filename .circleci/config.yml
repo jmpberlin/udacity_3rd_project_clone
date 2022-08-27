@@ -208,26 +208,42 @@ jobs:
             then
                 curl https://kvdb.io/MfuFTtcrnEYNxTz4nHT51E/migration_${CIRCLE_WORKFLOW_ID:0:7} -d '1'
             fi
-  #   deploy-frontend:
-  #     docker:
-  #       # Docker image here that supports AWS CLI
-  #     steps:
-  #       # Checkout code from git
-  #       - run:
-  #           name: Install dependencies
-  #           command: |
-  #             # your code here
-  #       - run:
-  #           name: Get backend url
-  #           command: |
-  #             # your code here
-  #             export API_URL="http://${BACKEND_IP}:3030"
-  #             echo "${API_URL}"
-  #       - run:
-  #           name: Deploy frontend objects
-  #           command: |
-  #             # your code here
-  #       # Here's where you will add some code to rollback on failure
+  deploy-frontend:
+    docker:
+      - image: cimg/aws:2022.06
+    steps:
+      - checkout
+      - run:
+          name: install tar & gzip
+          command: |
+            sudo npm install -g tar
+      - run:
+          name: install gzip
+          command: |
+            sudo npm install -g gzip
+
+      - run:
+          name: install python
+          command: |
+            sudo npm install -g python
+      - attach_workspace:
+          at: ~/
+
+      - run:
+          name: Get backend url
+          command: |
+            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --output text)
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "${API_URL}"
+            echo API_URL="httpppp://${BACKEND_IP}asd:3030" >> frontend/.env
+            cat frontend/.env
+      - run:
+          name: Deploy frontend objects
+          command: |
+            cd frontend
+            npm install
+            npm run build
+            aws s3 cp dist s3://udapeople-eb6a559 --recursive
 
   deploy-backend:
     docker:
@@ -254,7 +270,19 @@ jobs:
           name: Install dependencies
           command: |
             apk add --update ansible
-
+      - run:
+          name: Add env vars
+          command: |
+            echo ENVIROMENT=production > "backend/dist/.env"
+            echo TYPEORM_CONNECTION=postgres >> "backend/dist/.env"
+            echo TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js} >> "backend/dist/.env"
+            echo TYPEORM_HOST=$TYPEORM_HOST >> "backend/dist/.env"
+            echo TYPEORM_PORT=$TYPEORM_PORT >> "backend/dist/.env"
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/dist/.env"
+            echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> "backend/dist/.env"
+            echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> "backend/dist/.env"
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/dist/.env"
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/dist/.env"
       - run:
           name: build backend
           command: |
@@ -353,9 +381,9 @@ workflows:
       #     requires: [deploy-infrastructure]
       # - run-migrations:
       #     requires: [build-backend]
-      # - deploy-frontend:
+      - deploy-frontend
       #     requires: [run-migrations]
-      - deploy-backend
+      # - deploy-backend
       #     requires: [run-migrations]
       # - smoke-test:
       #     requires: [deploy-backend, deploy-frontend]
