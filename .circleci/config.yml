@@ -235,7 +235,7 @@ jobs:
             export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
-            echo API_URL="http://${BACKEND_IP}asd:3030" >> frontend/.env
+            echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
             cat frontend/.env
       - run:
           name: Deploy frontend objects
@@ -256,20 +256,20 @@ jobs:
       - attach_workspace:
           at: ~/
       - run:
-          name: Install node, npm
-          command: |
-            apk add --update nodejs
-            apk add --update npm
-      - run:
-          name: installing tar gzip
-          command: |
-            apk add --update tar
-            apk add --update gzip
-
-      - run:
           name: Install dependencies
           command: |
-            apk add --update ansible
+            pip install --upgrade pip
+            pip install awscli
+            apk add --update nodejs npm ansible zip
+      - run:
+          name: Deploy backend
+          command: |
+            cd backend
+            apk add --update nodejs-npm
+            apk add --update npm
+            npm install
+            npm run build
+            echo build successful
       - run:
           name: Add env vars
           command: |
@@ -287,10 +287,6 @@ jobs:
           name: build backend
           command: |
             mkdir artifacts
-            cd backend
-            npm i
-            npm run build
-            cd ..
             tar -C backend -czvf artifact.tar.gz .
             mv ~/project/artifact.tar.gz ~/project/artifacts
       - store_artifacts:
