@@ -324,7 +324,7 @@ jobs:
           command: |
             FRONTEND_ENDPOINT=http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees
             echo ${FRONTEND_ENDPOINT}
-            if curl -s ${FRONTEND_ENDPOINT} | grep "Welcome"
+            if curl -s "http://udapeople-631a84f.s3-website-us-east-1.amazonaws.com/#/employees" | grep "Welcome"
             then
               exit 0
             else
