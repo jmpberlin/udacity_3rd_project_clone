@@ -297,30 +297,32 @@ jobs:
       # Here's where you will add some code to rollback on failure
       ##### ADDED A TEMPORARY INVENTORY FILE FOR TESTING _ REMOVE THE INVENTORY FILE LATER! #######
 
-      # Here's where you will ad
-#   smoke-test:
-#     docker:
-#       # Lightweight Docker image
-#     steps:
-#       # Checkout code from git
-#       - run:
-#           name: Install dependencies
-#           command: |
-#             # your code here
-#       - run:
-#           name: Get backend url
-#           command: |
-#             # your code here
-#       - run:
-#           name: Backend smoke test.
-#           command: |
-#             # your code here
-#       - run:
-#           name: Frontend smoke test.
-#           command: |
-#             # your code here
-#       # Here's where you will add some code to rollback on failure
+smoke-test:
+  docker:
+    - image: cimg/aws:2022.06
+  steps:
+    - checkout
+    # - run:
+    #     name: Install dependencies
+    #     command: |
+    #       # your code here
 
+    - run:
+        name: Backend smoke test.
+        command: |
+          export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --output text)
+          export API_URL="http://${BACKEND_IP}:3030"
+          echo "${API_URL}"
+          if curl -i "${API_URL}/api/status" | grep "ok"
+          then
+            return 0
+          else
+            return 1
+          fi
+    # - run:
+    #     name: Frontend smoke test.
+    #     command: |
+    #       # your code here
 #   cloudfront-update:
 #     docker:
 #       # Docker image here that supports AWS CLI
@@ -379,9 +381,9 @@ workflows:
       #     requires: [build-backend]
       # - deploy-frontend
       #     requires: [run-migrations]
-      - deploy-backend
+      # - deploy-backend
       #     requires: [run-migrations]
-      # - smoke-test:
+      - smoke-test
       #     requires: [deploy-backend, deploy-frontend]
       # - cloudfront-update:
       #     requires: [smoke-test]
