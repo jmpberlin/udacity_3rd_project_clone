@@ -153,7 +153,7 @@ jobs:
       - run:
           name: Add back-end ip to ansible inventory
           command: |
-            echo "[all]" > ~/project/.circleci/ansible/inventory.txt
+            echo "[web]" > ~/project/.circleci/ansible/inventory.txt
             aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --output text >> ~/project/.circleci/ansible/inventory.txt
           #####MAKE SURE THAT THE IP ADDRESS IS PIPED INTO THE CORRECT FILE || REMOVE THE ONE ARROW ??
       - run:
@@ -343,7 +343,7 @@ jobs:
             else
               exit 1
             fi
-
+      - destroy-environment
         ########## in the curl calls remove eb6a559 with the CIRCLE WORKFLOW ID!
 
 #   cloudfront-update:
