@@ -129,39 +129,42 @@ jobs:
             npm install oauth-sign@^0.9.0
             # npm audit --audit-level=critical
             npm audit fix --audit-level=critical --force
-  #   deploy-infrastructure:
-  #     docker:
-  #       # Docker image here that supports AWS CLI
-  #     steps:
-  #       # Checkout code from git
-  #       - run:
-  #           name: Ensure back-end infrastructure exists
-  #           command: |
-  #             aws cloudformation deploy \
-  #               --template-file .circleci/files/backend.yml \
-  #               #--tags project=your-tag \
-  #               # --stack-name "your back-end stack name with workflow id" \
-  #               # --parameter-overrides ID="your workflow id"
-  #               exit 1
-  #       - run:
-  #           name: Ensure front-end infrastructure exist
-  #           command: |
-  #             aws cloudformation deploy \
-  #               --template-file .circleci/files/frontend.yml \
-  #               #--tags project=your-tag \
-  #               # --stack-name "your front-end stack name with workflow id" \
-  #               # --parameter-overrides ID="your workflow id"
-  #               exit 1
-  #       - run:
-  #           name: Add back-end ip to ansible inventory
-  #           command: |
-  #             # Your code here
-  #             exit 1
-  #       - persist_to_workspace:
-  #           root: ~/
-  #           paths:
-  #             - project/.circleci/ansible/inventory.txt
-  #       # Here's where you will add some code to rollback on failure
+  deploy-infrastructure:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: install tar & gzip
+          command: |
+            yum -y install tar gzip
+      - run:
+          name: Ensure back-end infrastructure exists
+          command: |
+            aws cloudformation deploy --template-file .circleci/files/backend.yml --tags project="udapeople" --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
+      - run:
+          name: Ensure front-end infrastructure exist
+          command: |
+            aws cloudformation deploy --template-file .circleci/files/frontend.yml --tags project="udapeople" --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
+      - run:
+          name: pwd log
+          command: |
+            pwd
+      - run:
+          name: Add back-end ip to ansible inventory
+          command: |
+            echo "[all]" > ~/project/.circleci/ansible/inventory.txt
+            aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --output text >> ~/project/.circleci/ansible/inventory.txt
+          #####MAKE SURE THAT THE IP ADDRESS IS PIPED INTO THE CORRECT FILE || REMOVE THE ONE ARROW ??
+      - run:
+          name: read the inventory file to the console
+          command: |
+            cat ~/project/.circleci/ansible/inventory.txt
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/.circleci/ansible/inventory.txt
+      - destroy-environment
 
   configure-infrastructure:
     docker:
@@ -240,7 +243,9 @@ jobs:
             cd frontend
             npm install
             npm run build
-            aws s3 cp dist s3://udapeople-eb6a559 --recursive
+            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+        ##### before: s3://udapeople-eb6a559
+        ##### remove the eb6a559 and put in the circle workflow ID !!!!
 
   deploy-backend:
     docker:
@@ -329,6 +334,7 @@ jobs:
             fi
 
         ########## in the curl calls remove eb6a559 with the CIRCLE WORKFLOW ID!
+
 #   cloudfront-update:
 #     docker:
 #       # Docker image here that supports AWS CLI
@@ -395,3 +401,8 @@ workflows:
       #     requires: [smoke-test]
       # - cleanup:
       #     requires: [cloudfront-update]
+
+
+####### CONFIGURED EVERYHTING SO IT CAN RUN TILL DEPLOY BACKEND 
+####### CONFIGURE INFRASTRUCTURE NEEDS TO BE CHECKED: MAKE SURE CORRECT NODE VERSION RUNS, etc. 
+####### REF! 
