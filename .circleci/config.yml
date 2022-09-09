@@ -174,12 +174,22 @@ jobs:
       - add_ssh_keys:
           fingerprints:
             - '15:19:28:b3:5c:f0:5d:8f:3d:0f:a3:d0:35:bb:68:2b'
-      # - attach_workspace:
-      #     at: ~/
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: read the inventory file to the console
+          command: |
+            cat ~/project/.circleci/ansible/inventory.txt
       - run:
           name: Install dependencies
           command: |
             apk add --update ansible
+      - run:
+          name: Install aws-cli
+          command: |
+            pip install --upgrade pip
+            pip install awscli
+            apk add --update nodejs npm ansible zip
       - run:
           name: Configure server
           command: |
