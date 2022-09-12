@@ -323,7 +323,8 @@ jobs:
       - run:
           name: echo
           command: |
-            echo "hallo"
+            echo "hallo" 
+          #run 
       # - run:
       #     name: Backend smoke test.
       #     command: |
