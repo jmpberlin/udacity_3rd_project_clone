@@ -369,31 +369,34 @@ jobs:
             export OLD_WORKFLOW_ID=$(aws cloudformation list-exports --query "Exports[?Name==\`WorkflowID\`].Value" --no-paginate --output text)
             aws cloudformation deploy --template-file .circleci/files/cloudfront.yml --stack-name InitialStack --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}"
       # Here's where you will add some code to rollback on failure
-
-# cleanup:
-#   docker:
-#     # Docker image here
-#   steps:
-#     # Checkout code from git
-#     - run:
-#         name: Get old stack workflow id
-#         command: |
-#           # your code here
-#           export OldWorkflowID="the id here"
-#           export STACKS=[] #put the list of stacks here
-#     - run:
-#         name: Remove old stacks and files
-#         command: |
-#           if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
-#           then
-#             # your code here
-#           fi
+  cleanup:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - run:
+          name: Get old stack workflow id
+          command: |
+            export OLD_WORKFLOW_ID=0200e09
+            echo $OLD_WORKDLOW_ID > ~/OldWorkflowID.txt
+      - run:
+          name: Remove old stacks and files
+          command: |
+            export OLD_WORKFLOW_ID=${cat ~/OldWorkflowID.txt}
+            if [[ "${CIRCLE_WORKFLOW_ID:0:7}" != "${OLD_WORKDLOW_ID}" ]]
+            then
+              aws s3 rm "s3://udapeople-${OLD_WORKDLOW_ID}" --recursive
+              aws cloudformation delete-stack --stack-name "udapeople-backend-${OLD_WORKDLOW_ID}"
+              aws cloudformation delete-stack --stack-name "udapeople-frontend-${OLD_WORKDLOW_ID}"
+              echo "--------------------- DELETE COMPLETE ---------------------"
+            else 
+              echo "----------------------COULDNT DELETE----------------------"
+            fi
 
 workflows:
   default:
     jobs:
-      - build-frontend
-      - build-backend
+      # - build-frontend
+      # - build-backend
       # - test-frontend:
       #     requires: [build-frontend]
       # - test-backend:
@@ -402,26 +405,26 @@ workflows:
       #     requires: [build-backend]
       # - scan-frontend:
       #     requires: [build-frontend]
-      - deploy-infrastructure:
-          requires: [build-frontend, build-backend]
-        # requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      # - deploy-infrastructure:
+      #     requires: [build-frontend, build-backend]
+      # requires: [test-frontend, test-backend, scan-frontend, scan-backend]
       #     filters:
       #       branches:
       #         only: [test-feature-branch]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
-      - run-migrations:
-          requires: [configure-infrastructure]
-      - deploy-frontend:
-          requires: [run-migrations]
-      - deploy-backend:
-          requires: [run-migrations]
-      - smoke-test:
-          requires: [deploy-backend, deploy-frontend]
+      # - configure-infrastructure:
+      #     requires: [deploy-infrastructure]
+      # - run-migrations:
+      #     requires: [configure-infrastructure]
+      # - deploy-frontend:
+      #     requires: [run-migrations]
+      # - deploy-backend:
+      #     requires: [run-migrations]
+      # - smoke-test:
+      #     requires: [deploy-backend, deploy-frontend]
       # - cloudfront-update:
       #     requires: [smoke-test]
-      # - cleanup:
-      #     requires: [cloudfront-update]
+      - cleanup
+        # requires: [cloudfront-update]
 ####### CONFIGURED EVERYHTING SO IT CAN RUN TILL DEPLOY BACKEND
 ####### CONFIGURE INFRASTRUCTURE NEEDS TO BE CHECKED: MAKE SURE CORRECT NODE VERSION RUNS, etc.
 ####### REF!
