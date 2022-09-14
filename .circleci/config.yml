@@ -156,7 +156,6 @@ jobs:
           command: |
             echo "[web]" > ~/project/.circleci/ansible/inventory.txt
             aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filter Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7} --output text >> ~/project/.circleci/ansible/inventory.txt
-          #####MAKE SURE THAT THE IP ADDRESS IS PIPED INTO THE CORRECT FILE || REMOVE THE ONE ARROW ??
       - run:
           name: read the inventory file to the console
           command: |
@@ -196,7 +195,6 @@ jobs:
           command: |
             ansible-playbook -vv -i ~/project/.circleci/ansible/inventory.txt ~/project/.circleci/ansible/configure-server.yml
       - destroy-environment
-  #       # Here's where you will add some code to rollback on failure
 
   run-migrations:
     docker:
@@ -255,8 +253,6 @@ jobs:
             npm install
             npm run build
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
-        ##### before: s3://udapeople-eb6a559
-        ##### remove the eb6a559 and put in the circle workflow ID !!!!
 
   deploy-backend:
     docker:
@@ -308,48 +304,36 @@ jobs:
           name: run the playbook
           command: ansible-playbook -vv -i ~/project/.circleci/ansible/inventory.txt ~/project/.circleci/ansible/deploy-backend.yml
       - destroy-environment
-      # Here's where you will add some code to rollback on failure
-      ##### ADDED A TEMPORARY INVENTORY FILE FOR TESTING _ REMOVE THE INVENTORY FILE LATER! #######
 
   smoke-test:
     docker:
       - image: cimg/aws:2022.06
     steps:
       - checkout
-      # - run:
-      #     name: Install dependencies
-      #     command: |
-      #       # your code here
       - run:
-          name: echo
+          name: Backend smoke test.
           command: |
-            echo "hallo"
-          #run
-      # - run:
-      #     name: Backend smoke test.
-      #     command: |
-      #       export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --output text)
-      #       export API_URL="http://${BACKEND_IP}:3030"
-      #       echo "${API_URL}"
-      #       if curl -s $API_URL/api/status | grep "ok"
-      #       then
-      #         exit 0
-      #       else
-      #         exit 1
-      #       fi
-      # - run:
-      #     name: Frontend smoke test.
-      #     command: |
-      #       FRONTEND_ENDPOINT=http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees
-      #       echo ${FRONTEND_ENDPOINT}
-      #       if curl -s "http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees" | grep "Welcome"
-      #       then
-      #         exit 0
-      #       else
-      #         exit 1
-      #       fi
-      ########## in the curl calls remove eb6a559 with the CIRCLE WORKFLOW ID!
-      # - destroy-environment
+            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --output text)
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "${API_URL}"
+            if curl -s $API_URL/api/status | grep "ok"
+            then
+              exit 0
+            else
+              exit 1
+            fi
+      - run:
+          name: Frontend smoke test.
+          command: |
+            FRONTEND_ENDPOINT=http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees
+            echo ${FRONTEND_ENDPOINT}
+            if curl -s "http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees" | grep "Welcome"
+            then
+              exit 0
+            else
+              exit 1
+            fi
+      - destroy-environment
 
   cloudfront-update:
     docker:
@@ -423,7 +407,3 @@ workflows:
           requires: [smoke-test]
       - cleanup:
           requires: [cloudfront-update]
-####### CONFIGURED EVERYHTING SO IT CAN RUN TILL DEPLOY BACKEND
-####### CONFIGURE INFRASTRUCTURE NEEDS TO BE CHECKED: MAKE SURE CORRECT NODE VERSION RUNS, etc.
-####### REF!
-# run
