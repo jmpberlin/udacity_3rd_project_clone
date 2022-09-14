@@ -323,8 +323,8 @@ jobs:
       - run:
           name: echo
           command: |
-            echo "hallo" 
-          #run 
+            echo "hallo"
+          #run
       # - run:
       #     name: Backend smoke test.
       #     command: |
@@ -356,13 +356,13 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
-      - run:
-          name: get old workflow id
-          command: |
-            export OLD_WORKFLOW_ID=$(aws cloudformation list-exports --query "Exports[?Name==\`WorkflowID\`].Value" --no-paginate --output text)
-            echo "Old Wokflow ID: $OLD_WORKFLOW_ID"
-            echo "Old Wokflow ID: $OLD_WORKFLOW_ID" > ~/OldWorkflowID.txt
-            cat ~/OldWorkflowID.txt
+      # - run:
+      #     name: get old workflow id
+      #     command: |
+      #       export OLD_WORKFLOW_ID=$(aws cloudformation list-exports --query "Exports[?Name==\`WorkflowID\`].Value" --no-paginate --output text)
+      #       echo "Old Wokflow ID: $OLD_WORKFLOW_ID"
+      #       echo "Old Wokflow ID: $OLD_WORKFLOW_ID" > ~/OldWorkflowID.txt
+      #       cat ~/OldWorkflowID.txt
       - run:
           name: Update cloudfront distribution
           command: |
@@ -418,8 +418,8 @@ workflows:
           requires: [run-migrations]
       - smoke-test:
           requires: [deploy-backend, deploy-frontend]
-      - cloudfront-update:
-          requires: [smoke-test]
+      # - cloudfront-update:
+      #     requires: [smoke-test]
       # - cleanup:
       #     requires: [cloudfront-update]
 ####### CONFIGURED EVERYHTING SO IT CAN RUN TILL DEPLOY BACKEND
