@@ -379,6 +379,10 @@ jobs:
           command: |
             export OLD_WORKFLOW_ID=0200e09
             echo $OLD_WORKDLOW_ID > ~/OldWorkflowID.txt
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - ~/OldWorkflowID.txt
       - run:
           name: Remove old stacks and files
           command: |
@@ -392,7 +396,7 @@ jobs:
           #   aws cloudformation delete-stack --stack-name "udapeople-backend-${OLD_WORKFLOW_ID}"
           #   aws cloudformation delete-stack --stack-name "udapeople-frontend-${OLD_WORKFLOW_ID}"
           #   echo "--------------------- DELETE COMPLETE ---------------------"
-          # else 
+          # else
           #   echo "----------------------COULDNT DELETE----------------------"
           # fi
 
