@@ -384,7 +384,7 @@ jobs:
           command: |
             cat ~/OldWorkflowID.txt
             sleep 3s
-            export OLD_WORKFLOW_ID=${cat ~/OldWorkflowID.txt}
+            export OLD_WORKFLOW_ID=$(cat ~/OldWorkflowID.txt)
             echo $OLD_WORKFLOW_ID
             if [[ "${CIRCLE_WORKFLOW_ID:0:7}" != "${OLD_WORKFLOW_ID}" ]]
             then
