@@ -382,7 +382,7 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - ~/OldWorkflowID.txt
+            - project/OldWorkflowID.txt
       - run:
           name: Remove old stacks and files
           command: |
