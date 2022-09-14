@@ -378,27 +378,21 @@ jobs:
           name: Get old stack workflow id
           command: |
             export OLD_WORKFLOW_ID=0200e09
-            echo $OLD_WORKDLOW_ID > ~/OldWorkflowID.txt
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - project/OldWorkflowID.txt
+            curl https://kvdb.io/MfuFTtcrnEYNxTz4nHT51E/OLD_WORKFLOW_ID -d '0200e09'
       - run:
-          name: Remove old stacks and files
+          name: Get OLD_WORKFLOW_ID from kvdb
           command: |
-            cat ~/OldWorkflowID.txt
-            sleep 3s
-            export OLD_WORKFLOW_ID=$(cat ~/OldWorkflowID.txt)
+            export OLD_WORKFLOW_ID=$(curl --insecure https://kvdb.io/MfuFTtcrnEYNxTz4nHT51E/OLD_WORKFLOW_ID)
             echo $OLD_WORKFLOW_ID
-          # if [[ "${CIRCLE_WORKFLOW_ID:0:7}" != "${OLD_WORKFLOW_ID}" ]]
-          # then
-          #   aws s3 rm "s3://udapeople-${OLD_WORKFLOW_ID}" --recursive
-          #   aws cloudformation delete-stack --stack-name "udapeople-backend-${OLD_WORKFLOW_ID}"
-          #   aws cloudformation delete-stack --stack-name "udapeople-frontend-${OLD_WORKFLOW_ID}"
-          #   echo "--------------------- DELETE COMPLETE ---------------------"
-          # else
-          #   echo "----------------------COULDNT DELETE----------------------"
-          # fi
+            if [[ "${CIRCLE_WORKFLOW_ID:0:7}" != "${OLD_WORKFLOW_ID}" ]]
+            then
+              aws s3 rm "s3://udapeople-${OLD_WORKFLOW_ID}" --recursive
+              aws cloudformation delete-stack --stack-name "udapeople-backend-${OLD_WORKFLOW_ID}"
+              aws cloudformation delete-stack --stack-name "udapeople-frontend-${OLD_WORKFLOW_ID}"
+              echo "--------------------- DELETE COMPLETE ---------------------"
+            else
+              echo "----------------------COULDNT DELETE----------------------"
+            fi
 
 workflows:
   default:
